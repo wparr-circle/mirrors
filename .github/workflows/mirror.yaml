@@ -47,7 +47,7 @@ jobs:
         EOT
     - name: Sync
       run: |
-        ./skopeo --insecure-policy sync \
+        ./skopeo --insecure-policy sync --debug \
           --sign-by-sigstore sigstore.config.yaml \
           --scoped \
           --authfile $HOME/.docker/config.json \
