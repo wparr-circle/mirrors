@@ -50,4 +50,4 @@ jobs:
           --retry-times 3 \
           -a -s yaml -d docker \
           mirrors.yaml \
-          ghcr.io/wparr-circle/mirrors
+          ghcr.io/wparr-circle
