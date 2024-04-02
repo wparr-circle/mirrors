@@ -46,7 +46,6 @@ jobs:
       run: |
         ./skopeo --insecure-policy sync --debug \
           --sign-by-sigstore sigstore.config.yaml \
-          --scoped \
           --authfile $HOME/.docker/config.json \
           --retry-times 3 \
           -a -s yaml -d docker \
