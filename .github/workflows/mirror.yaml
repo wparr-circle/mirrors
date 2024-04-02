@@ -25,15 +25,16 @@ jobs:
       id: script
       with:
         script: |
-          idtoken = core.getIDToken()
-          core.setOutput('idtoken', idtoken)
+          const coredemo = require('@actions/core')
+          let id_token = await coredemo.getIDToken()
+          coredemo.setOutput('id_token', id_token)
     - name: Populate id-token
       run: |
         tee sigstore.config.yaml <<EOT
         fulcio:
           fulcioURL: "https://fulcio.sigstore.dev"
           oidcMode: "staticToken"
-          oidcIDToken: "${{steps.script.outputs.idtoken}}"
+          oidcIDToken: "${{steps.script.outputs.id_token}}"
         rekorURL: "https://rekor.sigstore.dev"
         EOT
     - name: Sync
