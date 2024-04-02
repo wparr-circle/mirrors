@@ -25,7 +25,7 @@ jobs:
       id: script
       with:
         script: |
-          let id_token = await core.getIDToken()
+          let id_token = await core.getIDToken("sigstore")
           core.setOutput('id_token', id_token)
     - name: Populate id-token
       run: |
