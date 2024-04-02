@@ -33,7 +33,7 @@ jobs:
         fulcio:
           fulcioURL: "https://fulcio.sigstore.dev"
           oidcMode: "staticToken"
-          oidcIDToken: "${steps.script.outputs.idtoken}"
+          oidcIDToken: "${{steps.script.outputs.idtoken}}"
         rekorURL: "https://rekor.sigstore.dev"
         EOT
     - name: Sync
