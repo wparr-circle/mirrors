@@ -37,6 +37,7 @@ jobs:
           oidcIDToken: "${{steps.script.outputs.id_token}}"
         rekorURL: "https://rekor.sigstore.dev"
         EOT
+        mkdir -p registries.d
         tee registries.d/default.yaml <<EOT
         default-docker:
           use-sigstore-attachments: true
