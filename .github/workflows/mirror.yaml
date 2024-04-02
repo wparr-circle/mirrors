@@ -19,6 +19,14 @@ jobs:
         wget https://github.com/lework/skopeo-binary/releases/download/${SKOPEO_VERSION}/skopeo-linux-amd64 -O skopeo
         echo 51218f93a2b079e36a36f7fbe2d2d86778be0a6947653031b4f9e254e2469224 skopeo | sha256sum --check
         chmod +x skopeo
+    - uses: actions/github-script@v6
+      id: script
+      with:
+        script: |
+          const token = process.env['ACTIONS_RUNTIME_TOKEN']
+          const runtimeUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL']
+          core.setOutput('TOKEN', token.trim())
+          core.setOutput('IDTOKENURL', runtimeUrl.trim())
     - name: Populate id-token
       run: |
         IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
