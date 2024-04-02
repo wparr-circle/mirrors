@@ -1,0 +1,4 @@
+ghcr.io:
+  images:
+    external-secrets/external-secrets:
+      - v0.9.13
