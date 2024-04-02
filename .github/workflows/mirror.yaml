@@ -25,24 +25,15 @@ jobs:
       id: script
       with:
         script: |
-          const token = process.env['ACTIONS_RUNTIME_TOKEN']
-          const runtimeUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL']
-          core.setOutput('TOKEN', token.trim())
-          core.setOutput('IDTOKENURL', runtimeUrl.trim())
+          idtoken = core.getIDToken()
+          core.setOutput('idtoken', idtoken)
     - name: Populate id-token
       run: |
-        IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
-        jwtd() {
-          if [[ -x $(command -v jq) ]]; then
-            jq -R 'split(".") | .[0],.[1] | @base64d | fromjson' <<< "${1}"
-          fi
-        }
-        jwtd $IDTOKEN
         tee sigstore.config.yaml <<EOT
         fulcio:
           fulcioURL: "https://fulcio.sigstore.dev"
           oidcMode: "staticToken"
-          oidcIDToken: "${IDTOKEN}"
+          oidcIDToken: "${steps.script.outputs.idtoken}"
         rekorURL: "https://rekor.sigstore.dev"
         EOT
     - name: Sync
