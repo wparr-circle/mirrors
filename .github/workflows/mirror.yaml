@@ -5,44 +5,44 @@ on:
   pull_request:
     branches: [master]
 
-mirror:
-  permissions:
-    id-token: write
-    contents: read
-  runs-on: ubuntu-latest
-  steps:
-  - name: Setup Skopeo
-    env:
-      SKOPEO_VERSION: v1.14.2
-    run: |
-      wget https://github.com/lework/skopeo-binary/releases/download/${SKOPEO_VERSION}/skopeo-linux-amd64 -O skopeo
-      echo 51218f93a2b079e36a36f7fbe2d2d86778be0a6947653031b4f9e254e2469224 skopeo | sha256sum --check
-      chmod +x skopeo
-  - name: Populate id-token
-    run: |
-      IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
-      jwtd() {
-        if [[ -x $(command -v jq) ]]; then
-          jq -R 'split(".") | .[0],.[1] | @base64d | fromjson' <<< "${1}"
-        fi
-      }
-      jwtd $IDTOKEN
-      tee sigstore.config.yaml <<EOT
-      fulcio:
-        fulcioURL: "https://fulcio.sigstore.dev"
-        oidcMode: "staticToken"
-        oidcIssuerURL: "https://token.actions.githubusercontent.com"
-        oidcIDToken: '${IDTOKEN}'
-      rekorURL: "https://rekor.sigstore.dev"
-      EOT
-  - name: Sync
-    run: |
-      ./skopeo --insecure-policy sync \
-        --sign-by-sigstore sigstore.config.yaml \
-        --scoped \
-        --authfile $HOME/.docker/config.json \
-        --retry-times 3 \
-        -a -s yaml -d dir \
-        mirrors.yaml \
-        `mktemp -d`
-
+jobs:
+  mirror:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Skopeo
+      env:
+        SKOPEO_VERSION: v1.14.2
+      run: |
+        wget https://github.com/lework/skopeo-binary/releases/download/${SKOPEO_VERSION}/skopeo-linux-amd64 -O skopeo
+        echo 51218f93a2b079e36a36f7fbe2d2d86778be0a6947653031b4f9e254e2469224 skopeo | sha256sum --check
+        chmod +x skopeo
+    - name: Populate id-token
+      run: |
+        IDTOKEN=$(curl -H "Authorization: bearer  ${{steps.script.outputs.TOKEN}}" ${{steps.script.outputs.IDTOKENURL}}  -H "Accept: application/json; api-version=2.0" -H "Content-Type: application/json" -d "{}" | jq -r '.value')
+        jwtd() {
+          if [[ -x $(command -v jq) ]]; then
+            jq -R 'split(".") | .[0],.[1] | @base64d | fromjson' <<< "${1}"
+          fi
+        }
+        jwtd $IDTOKEN
+        tee sigstore.config.yaml <<EOT
+        fulcio:
+          fulcioURL: "https://fulcio.sigstore.dev"
+          oidcMode: "staticToken"
+          oidcIssuerURL: "https://token.actions.githubusercontent.com"
+          oidcIDToken: '${IDTOKEN}'
+        rekorURL: "https://rekor.sigstore.dev"
+        EOT
+    - name: Sync
+      run: |
+        ./skopeo --insecure-policy sync \
+          --sign-by-sigstore sigstore.config.yaml \
+          --scoped \
+          --authfile $HOME/.docker/config.json \
+          --retry-times 3 \
+          -a -s yaml -d dir \
+          mirrors.yaml \
+          `mktemp -d`
