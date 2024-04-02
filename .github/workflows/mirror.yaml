@@ -9,7 +9,7 @@ jobs:
   mirror:
     permissions:
       id-token: write
-      contents: read
+      contents: write
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -36,6 +36,12 @@ jobs:
           oidcIDToken: "${{steps.script.outputs.id_token}}"
         rekorURL: "https://rekor.sigstore.dev"
         EOT
+    - name: 'Login to GitHub Container Registry'
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{github.actor}}
+        password: ${{secrets.GITHUB_TOKEN}}
     - name: Sync
       run: |
         ./skopeo --insecure-policy sync --debug \
@@ -43,6 +49,6 @@ jobs:
           --scoped \
           --authfile $HOME/.docker/config.json \
           --retry-times 3 \
-          -a -s yaml -d dir \
+          -a -s yaml -d docker \
           mirrors.yaml \
-          `mktemp -d`
+          ghcr.io/wparr-circle/mirrors
