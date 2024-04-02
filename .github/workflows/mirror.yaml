@@ -42,7 +42,6 @@ jobs:
         fulcio:
           fulcioURL: "https://fulcio.sigstore.dev"
           oidcMode: "staticToken"
-          oidcIssuerURL: "https://token.actions.githubusercontent.com"
           oidcIDToken: '${IDTOKEN}'
         rekorURL: "https://rekor.sigstore.dev"
         EOT
